@@ -1,13 +1,13 @@
 import logging; logging.basicConfig(level=logging.INFO)
-import asyncio
+import asyncio, os, json, time, aiomysql
 
 @asyncio.coroutine
-def create_pool(loop, **kv):
+def create_pool(loop, **kw):
     logging.info('create database connection pool...')
     global __pool
     __pool = yield from aiomysql.create_pool(
-        host = kw.get('host', 'localhost'),
-        port = kw.get('port', 3306),
+        host=kw.get('host', 'localhost'),
+        port=kw.get('port', 3306),
         user=kw['user'],
         password=kw['password'],
         db=kw['db'],
@@ -20,7 +20,7 @@ def create_pool(loop, **kv):
 
 @asyncio.coroutine
 def select(sql, args, size=None):
-    log(sql, args)
+    # log(sql, args)
     global __pool
     with (yield from __pool) as conn:
         cur = yield from conn.cursor(aiomysql.DictCursor)
@@ -35,7 +35,7 @@ def select(sql, args, size=None):
 
 @asyncio.coroutine
 def execute(sql, args):
-    log(sql)
+    # log(sql)
     with (yield from __pool) as conn:
         try:
             cur = yield from conn.cursor()
